@@ -2,11 +2,13 @@ package edu.ucsd.spendingtracker;
 
 import edu.ucsd.spendingtracker.datasource.InMemoryDataSource;
 import edu.ucsd.spendingtracker.model.Model;
+import edu.ucsd.spendingtracker.presenter.PresenterManager;
 import edu.ucsd.spendingtracker.presenter.SpendingPresenter;
+import edu.ucsd.spendingtracker.presenter.SummaryPresenter;
 import edu.ucsd.spendingtracker.repository.ExpenseRepository;
 import edu.ucsd.spendingtracker.view.SpendingView;
+import edu.ucsd.spendingtracker.view.SummaryView;
 import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -17,16 +19,16 @@ public class App extends Application {
 
         ExpenseRepository repository = new ExpenseRepository(dataSource);
 
-        Model model = new Model(repository);
+        Model sharedModel = new Model(repository);
 
-        SpendingView view = new SpendingView();
+        SpendingView spendingView = new SpendingView();
+        SummaryView summaryView = new SummaryView();
 
-        SpendingPresenter presenter = new SpendingPresenter(model, view);
+        SpendingPresenter listPresenter = new SpendingPresenter(sharedModel, spendingView);
+        SummaryPresenter summaryPresenter = new SummaryPresenter(sharedModel, summaryView);
 
-        primaryStage.setTitle("Spending Tracker");
-        primaryStage.setScene(new Scene(view, 500, 600));
-        primaryStage.setResizable(false);
-        primaryStage.show();
+        PresenterManager manager = new PresenterManager();
+        manager.defineInteractions(primaryStage, "Spending Tracker", listPresenter, summaryPresenter);
     }
 
     public static void main(String[] args){
